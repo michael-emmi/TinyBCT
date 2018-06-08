@@ -161,6 +161,28 @@ public class TestsBase
         Console.WriteLine(corralResult.ToString());
         return corralResult;
     }
+
+    protected virtual CorralResult CorralTestHelperCodeFromBinary(string testName, string mainMethod, int recursionBound, bool useStubs)
+    {
+        var testBpl = System.IO.Path.ChangeExtension(testName, ".bpl");
+        string uniqueDir = Test.TestUtils.getFreshDir(System.IO.Path.Combine(pathTempDir, testName));
+
+        var dll = @"C:\Jolden\bin\Debug\Jolden.exe";//System.IO.Path.Combine(uniqueDir, testName) + ".dll";
+        var bpl = @"C:\Jolden\bin\Debug\Jolden.bpl";
+        var stubs = @"..\..\Dependencies\CollectionStubs.dll";
+        var args = useStubs ?
+            (new string[] { "-i", dll, stubs, "-l", "true",
+                        "-b", @"..\..\Dependencies\poirot_stubs.bpl" }) :
+            (new string[] { "-i", dll, "-l", "true" });
+        TinyBCT.Program.Main(args);
+        
+        //Assert.IsTrue(System.IO.File.Exists(System.IO.Path.Combine(uniqueDir, testBpl)));
+        var corralResult = Test.TestUtils.CallCorral(10, bpl, additionalArguments: "/main:" + mainMethod);
+        Console.WriteLine(corralResult.ToString());
+        return corralResult;
+    }
+
+
     protected virtual CorralResult CorralTestHelper(string testName, string mainMethod, int recursionBound, string additionalOptions = "")
     {
         string source = System.IO.File.ReadAllText(System.IO.Path.Combine(pathSourcesDir, System.IO.Path.ChangeExtension(testName, ".cs")));
@@ -1270,7 +1292,6 @@ class Test {
 [TestClass]
 public class TestsManu : TestsBase
 {
-
     [TestMethod, Timeout(10000)]
     [TestCategory("NotImplemented")]
     public void Subtype()
@@ -1285,6 +1306,15 @@ public class TestsManu : TestsBase
     public void SplitFields1()
     {
         var corralResult = CorralTestHelper("SplitFields", "Test.SplitFields.test1", 10);
+        Assert.IsTrue(corralResult.NoBugs());
+    }
+
+    /* ************ Jolden ************** */
+    [TestMethod]
+    [TestCategory("Manu")]
+    public void Jolden1()
+    {
+        var corralResult = CorralTestHelperCodeFromBinary("Jolden", "Jolden.Program.Main$System.Stringarray", 10, true); //CorralTestHelper("DynamicDispatch", @"DynamicDispatch.DynamicDispatch.test7$DynamicDispatch.Animal", 10);
         Assert.IsTrue(corralResult.NoBugs());
     }
 
