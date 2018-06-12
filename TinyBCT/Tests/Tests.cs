@@ -4,6 +4,7 @@ using Backend.ThreeAddressCode.Values;
 using Microsoft.Cci;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using static Test.TestUtils;
+using Backend;
 
 [TestClass]
 public partial class TestsHelpers
@@ -149,6 +150,8 @@ public class TestsBase
 
         TinyBCT.Translators.StaticInitializer.mainMethods = new HashSet<IMethodDefinition>();
         TinyBCT.Translators.StaticInitializer.staticConstructors = new HashSet<IMethodDefinition>();
+
+        TinyBCT.ImmutableArguments.MethodToMapping = new Dictionary<MethodBody, IDictionary<IVariable, IVariable>>();
     }
     protected string pathSourcesDir = System.IO.Path.Combine(Test.TestUtils.rootTinyBCT, @"Test\RegressionsAv\");
     private static string pathTempDir = System.IO.Path.Combine(Test.TestUtils.rootTinyBCT, @"Test\TempDirForTests");
@@ -162,13 +165,11 @@ public class TestsBase
         return corralResult;
     }
 
-    protected virtual CorralResult CorralTestHelperCodeFromBinary(string testName, string mainMethod, int recursionBound, bool useStubs)
+    protected virtual CorralResult CorralTestHelperCodeFromBinary(string testName, string dll, string bpl, string mainMethod, int recursionBound, bool useStubs)
     {
         var testBpl = System.IO.Path.ChangeExtension(testName, ".bpl");
         string uniqueDir = Test.TestUtils.getFreshDir(System.IO.Path.Combine(pathTempDir, testName));
 
-        var dll = @"C:\Jolden\bin\Debug\Jolden.exe";//System.IO.Path.Combine(uniqueDir, testName) + ".dll";
-        var bpl = @"C:\Jolden\bin\Debug\Jolden.bpl";
         var stubs = @"..\..\Dependencies\CollectionStubs.dll";
         var args = useStubs ?
             (new string[] { "-i", dll, stubs, "-l", "true",
@@ -1314,7 +1315,33 @@ public class TestsManu : TestsBase
     [TestCategory("Manu")]
     public void Jolden1()
     {
-        var corralResult = CorralTestHelperCodeFromBinary("Jolden", "Jolden.Program.Main$System.Stringarray", 10, true); //CorralTestHelper("DynamicDispatch", @"DynamicDispatch.DynamicDispatch.test7$DynamicDispatch.Animal", 10);
+        var dll = @"C:\Jolden\bin\Debug\Jolden.exe";
+        var bpl = @"C:\Jolden\bin\Debug\Jolden.bpl";
+
+        var corralResult = CorralTestHelperCodeFromBinary("Jolden",dll, bpl, "Jolden.Program.Main$System.Stringarray", 10, true); //CorralTestHelper("DynamicDispatch", @"DynamicDispatch.DynamicDispatch.test7$DynamicDispatch.Animal", 10);
+        Assert.IsTrue(corralResult.NoBugs());
+    }
+
+    [TestMethod]
+    [TestCategory("Manu")]
+    public void StackMscorlib()
+    {
+        var dll = @"C:\Users\Usuario\Downloads\StackMscorlib.dll";
+        var bpl = @"C:\Users\Usuario\Downloads\StackMscorlib.bpl";
+
+        var corralResult = CorralTestHelperCodeFromBinary("StackMscorlib",dll, bpl, "System.Collections.Generic2.MyArray.Copy$System.Objectarray$System.Int32$System.Objectarray$System.Int32$System.Int32", 10, true); //CorralTestHelper("DynamicDispatch", @"DynamicDispatch.DynamicDispatch.test7$DynamicDispatch.Animal", 10);
+        Assert.IsTrue(corralResult.NoBugs());
+    }
+
+    // C:\Users\Usuario\Downloads\StackMscorlib.dll
+
+    // ************************************* MissingConstructorInitializations ******************************
+
+    [TestMethod]
+    [TestCategory("Manu")]
+    public void RefKeyword1()
+    {
+        var corralResult = CorralTestHelper("RefKeyword", @"Test.RefKeyword.Main", 10);
         Assert.IsTrue(corralResult.NoBugs());
     }
 
