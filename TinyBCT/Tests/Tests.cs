@@ -1329,9 +1329,23 @@ public class TestsManu : TestsBase
         var dll = @"C:\Users\Usuario\Downloads\StackMscorlib.dll";
         var bpl = @"C:\Users\Usuario\Downloads\StackMscorlib.bpl";
 
-        var corralResult = CorralTestHelperCodeFromBinary("StackMscorlib",dll, bpl, "System.Collections.Generic2.MyArray.Copy$System.Objectarray$System.Int32$System.Objectarray$System.Int32$System.Int32", 10, true); //CorralTestHelper("DynamicDispatch", @"DynamicDispatch.DynamicDispatch.test7$DynamicDispatch.Animal", 10);
+        var corralResult = CorralTestHelperCodeFromBinary("StackMscorlib",dll, bpl, "System.Collections.Generic2.MyArray.Resize$System.Stringarray$$System.Int32", 10, true); //CorralTestHelper("DynamicDispatch", @"DynamicDispatch.DynamicDispatch.test7$DynamicDispatch.Animal", 10);
         Assert.IsTrue(corralResult.NoBugs());
     }
+
+
+    [TestMethod]
+    [TestCategory("Manu")]
+    public void StackMscorlib2()
+    {
+        var dll = @"C:\Users\Usuario\Desktop\tempr\SOURCE_S1_ACTION_System_Collections2_Stack_ctorSystem_Collections_I_ACTIONS_EXITCODE_ArgumentOutOfRangeException\29af88a3-4a9a-4818-bb04-01f98dd0be76\StackMscorlib.dll";
+        var bpl = @"C:\Users\Usuario\Desktop\tempr\SOURCE_S1_ACTION_System_Collections2_Stack_ctorSystem_Collections_I_ACTIONS_EXITCODE_ArgumentOutOfRangeException\29af88a3-4a9a-4818-bb04-01f98dd0be76\StackMscorlib.bpl";
+
+        var corralResult = CorralTestHelperCodeFromBinary("StackMscorlib", dll, bpl, "System.Collections.Generic2.MyArray.Resize$System.Stringarray$$System.Int32", 10, true); //CorralTestHelper("DynamicDispatch", @"DynamicDispatch.DynamicDispatch.test7$DynamicDispatch.Animal", 10);
+        Assert.IsTrue(corralResult.NoBugs());
+    }
+
+    //C:\Users\Usuario\Desktop\tempr\SOURCE_S1_ACTION_System_Collections2_Stack_ctorSystem_Collections_I_ACTIONS_EXITCODE_ArgumentOutOfRangeException\29af88a3-4a9a-4818-bb04-01f98dd0be76\StackMscorlib.dll
 
     // C:\Users\Usuario\Downloads\StackMscorlib.dll
 
